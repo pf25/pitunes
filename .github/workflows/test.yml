@@ -1,0 +1,90 @@
+# Runs on every push: the server's tests, and a from-scratch run of the
+# installer on a clean Linux machine (the closest thing to a fresh Raspberry Pi
+# that can be automated).
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  server-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+        working-directory: server
+      - run: uv run pytest -q
+        working-directory: server
+
+  fresh-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The installer needs Tailscale signed in, which a test machine can't do.
+      # This stand-in answers the three questions the scripts ask it.
+      - name: Stand-in for Tailscale
+        run: |
+          sudo tee /usr/local/bin/tailscale >/dev/null <<'EOF'
+          #!/bin/sh
+          case "$1 $2" in
+            "ip -4") echo 127.0.0.1 ;;
+            "status --json") echo '{}' ;;
+            *) exit 1 ;;
+          esac
+          EOF
+          sudo chmod +x /usr/local/bin/tailscale
+
+      - name: Run the installer (fresh)
+        run: PITUNES_REPO="file://$GITHUB_WORKSPACE" bash install.sh
+
+      - name: The server is up and serves the web app
+        run: |
+          curl -sf http://127.0.0.1:8000/health
+          curl -sf http://127.0.0.1:8000/ | grep -q "<title>PiTunes</title>"
+          curl -sf http://127.0.0.1:8000/web/app.js >/dev/null
+          curl -sf http://127.0.0.1:8000/sw.js >/dev/null
+          curl -sf http://127.0.0.1:8000/likes
+          systemctl is-enabled pitunes.service pitunes-update.timer
+
+      - name: Run the installer again (the update path)
+        run: PITUNES_REPO="file://$GITHUB_WORKSPACE" bash install.sh
+
+      - name: Logs, if anything failed
+        if: failure()
+        run: journalctl -u pitunes -n 80 --no-pager || true
+
+  documented-install:
+    # The exact command from the guide: download the installer from the public
+    # repository and pipe it to bash, on a machine that has never seen PiTunes.
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stand-in for Tailscale
+        run: |
+          sudo tee /usr/local/bin/tailscale >/dev/null <<'EOF2'
+          #!/bin/sh
+          case "$1 $2" in
+            "ip -4") echo 127.0.0.1 ;;
+            "status --json") echo '{}' ;;
+            *) exit 1 ;;
+          esac
+          EOF2
+          sudo chmod +x /usr/local/bin/tailscale
+
+      - name: Run the command from the guide
+        run: curl -fsSL https://raw.githubusercontent.com/pf25/pitunes/main/install.sh | bash
+
+      - name: The server is up and serves the web app
+        run: |
+          curl -sf http://127.0.0.1:8000/health
+          curl -sf http://127.0.0.1:8000/ | grep -q "<title>PiTunes</title>"
+          curl -sf "http://127.0.0.1:8000/me" | grep -q '"profiles"'
+          systemctl is-enabled pitunes.service pitunes-update.timer
+
+      - name: Logs, if anything failed
+        if: failure()
+        run: journalctl -u pitunes -n 80 --no-pager || true

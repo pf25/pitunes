@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support | PiTunes</title>
+<meta name="description" content="Troubleshooting for PiTunes: connection problems, songs that will not play, updating the server, and where to report bugs.">
+<meta name="theme-color" content="#0B0B0F">
+<style>
+:root{--bg:#0B0B0F;--surface:#17171D;--raised:#25252E;--accent:#FF4D67;--accent2:#8B5CF6;--on-accent:#12080D;--text:#fff;--text2:rgba(255,255,255,.72);--text3:rgba(255,255,255,.45);--line:rgba(255,255,255,.09)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.wide{max-width:1040px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 16px;max-width:1040px;margin:0 auto}
+.brand{font-weight:700;font-size:20px;color:var(--text);letter-spacing:-.01em}
+.brand span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav.links{display:flex;gap:18px;flex-wrap:wrap;font-size:15px}
+nav.links a{color:var(--text2)}
+h1{font-size:clamp(34px,7vw,56px);line-height:1.08;letter-spacing:-.025em;margin:0 0 18px}
+h2{font-size:clamp(26px,4.5vw,34px);line-height:1.2;letter-spacing:-.015em;margin:72px 0 14px;scroll-margin-top:20px}
+h3{font-size:20px;line-height:1.3;margin:36px 0 8px;scroll-margin-top:20px}
+p{margin:0 0 16px;color:var(--text2)}
+li{color:var(--text2);margin-bottom:8px}
+ul,ol{padding-left:22px;margin:0 0 16px}
+strong{color:var(--text)}
+.lede{font-size:20px;color:var(--text2);max-width:620px}
+.hero{padding:44px 0 12px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 8px}
+.btn{display:inline-block;padding:13px 22px;border-radius:999px;font-weight:600;font-size:16px}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:var(--raised);color:var(--text)}
+.btn:hover{text-decoration:none;filter:brightness(1.08)}
+.note{font-size:14px;color:var(--text3)}
+.shots{display:flex;gap:14px;overflow-x:auto;padding:8px 16px 20px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.shots img{flex:0 0 auto;width:230px;height:auto;border-radius:26px;border:1px solid var(--line);scroll-snap-align:center;background:var(--surface)}
+@media(min-width:1040px){.shots{justify-content:center;flex-wrap:wrap;overflow:visible}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:0 0 16px}
+.grid .card{margin:0}
+.grid h3{margin:0 0 6px;font-size:17px}
+.grid p{margin:0;font-size:15px}
+pre{background:#000;border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;margin:0 0 16px;-webkit-user-select:all;user-select:all}
+code{font:14.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#f3f3f6}
+p code,li code,td code{background:var(--raised);padding:2px 6px;border-radius:6px;font-size:14px}
+.step{display:flex;gap:14px;align-items:baseline;margin:48px 0 8px}
+.step .n{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:16px;transform:translateY(-3px)}
+.step h3{margin:0;font-size:23px}
+.photo{border:1.5px dashed rgba(255,255,255,.22);border-radius:16px;background:var(--surface);color:var(--text3);min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:15px;margin:0 0 16px}
+table{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:16px}
+td,th{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);color:var(--text2);vertical-align:top}
+th{color:var(--text);font-weight:600}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:0 0 10px}
+summary{cursor:pointer;font-weight:600;color:var(--text)}
+details p{margin:10px 0 0}
+.warn{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 14px 14px 0;padding:16px 18px;margin:0 0 16px}
+.warn p:last-child{margin:0}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 10px;margin:0 0 16px}
+.diagram svg{display:block;width:100%;height:auto}
+footer{border-top:1px solid var(--line);margin-top:80px;padding:28px 16px 48px;font-size:14px;color:var(--text3);text-align:center}
+footer a{color:var(--text2);margin:0 8px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="/"><span>Pi</span>Tunes</a>
+  <nav class="links">
+    <a href="/#guide">Build guide</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="https://github.com/pf25/pitunes">GitHub</a>
+  </nav>
+</header>
+
+<main class="wrap">
+<section class="hero">
+  <h1>Support</h1>
+  <p class="lede">PiTunes has two halves, the app in your browser and the server on your Raspberry Pi. Most problems are the connection between them. Start at the top and work down.</p>
+</section>
+
+<h2 id="connect">The app cannot connect</h2>
+<ol>
+  <li><strong>Is Tailscale on?</strong> Open the Tailscale app on the phone and check that the switch is on. iOS sometimes turns a VPN off after an update or a restart.</li>
+  <li><strong>Can the phone see the Pi?</strong> In the Tailscale app, your Pi (usually called <code>music</code>) should be in the device list and shown as connected. If it is missing or offline, the problem is on the Pi's side. Go to step 4.</li>
+  <li><strong>Is the address right?</strong> Open the address the installer printed, for example <code>https://music.your-tailnet.ts.net</code>. Without HTTPS it is <code>http://music:8000</code>, and the <code>:8000</code> at the end matters. In the app, Library, then the gear, then <strong>Test Connection</strong> tells you whether the server answers.</li>
+  <li><strong>Is another VPN on?</strong> An iPhone runs one VPN at a time, so switching on another VPN app switches Tailscale off. On a computer, some VPN apps use network addresses that clash with Tailscale and break name lookups while both are on. Turn the other VPN off, or set it to use a public DNS server such as <code>1.1.1.1</code>.</li>
+  <li><strong>Is the Pi running?</strong> Check that it has power and that its light is on. Unplugging it and plugging it back in is safe. The server starts on its own within a couple of minutes.</li>
+  <li><strong>Has the Pi's Tailscale login expired?</strong> In the <a href="https://login.tailscale.com/admin/machines">Tailscale admin page</a>, look for an "Expired" label next to the Pi. If it is there, log in to the Pi over your home Wi-Fi and run <code>sudo tailscale up</code>, then choose <strong>Disable key expiry</strong> for that machine so it does not happen again.</li>
+</ol>
+<p>To check the server directly, log in to the Pi and run:</p>
+<pre><code>systemctl status pitunes</code></pre>
+<p>It should say <code>active (running)</code>. To see what it has been doing:</p>
+<pre><code>journalctl -u pitunes -n 50</code></pre>
+
+<h2 id="playback">A song will not play</h2>
+<ul>
+  <li><strong>One song fails, others work.</strong> That video is probably unavailable, private, or blocked in your country. Search for the song again and pick another result. Results marked "Video" are music videos, and the unmarked ones are album recordings.</li>
+  <li><strong>The first play is slow.</strong> A song the Pi has never played takes 10 to 15 seconds to start on a Pi Zero 2 W, more on a slow connection. The second time it is instant.</li>
+  <li><strong>Nothing plays at all.</strong> YouTube has probably changed something. Update the server (next section). This is the usual fix.</li>
+  <li><strong>Playback stops when you leave home.</strong> Tailscale is off on the phone, or the phone has no signal. Downloaded songs keep working without a connection.</li>
+</ul>
+
+<h2 id="update">Updating the server</h2>
+<p>The server updates the part that talks to YouTube once a week on its own. To update everything now, including PiTunes itself, log in to the Pi and run the install command again:</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/pf25/pitunes/main/install.sh | bash</code></pre>
+<p>Your likes, playlists, history and cached songs are kept. Playback stops for a few seconds while the server restarts.</p>
+<p>The web app is part of the server, so updating the server updates the app on every device. If you built the native iPhone app, pull the latest source and build again.</p>
+
+<h2 id="downloads">Downloads</h2>
+<ul>
+  <li><strong>There is no Downloads row or download button.</strong> Downloads only work on the secure address, the one starting with <code>https://</code>. Switch on HTTPS in Tailscale (step 2 of the guide), run the install command again, then open the <code>https</code> address and add that one to your home screen.</li>
+  <li><strong>Downloaded songs disappeared.</strong> Phones can clear a web app's storage when they run short of space, and removing the app from the home screen removes its downloads. Add the app to the home screen (rather than using it in a browser tab) and download the list again.</li>
+  <li><strong>Podcast episodes cannot be downloaded</strong> in the web app. The native iPhone app can.</li>
+</ul>
+
+<h2 id="profiles">Profiles</h2>
+<ul>
+  <li><strong>Someone sees another person's library.</strong> Each person must sign in to Tailscale on their phone with their own account, not a shared one. The server tells people apart by their Tailscale account.</li>
+  <li><strong>To switch to a different profile,</strong> open Library, then Settings, then <strong>Use a Different Profile</strong>.</li>
+</ul>
+
+<h2 id="sound-search">Sound search does not find the song (native iPhone app only)</h2>
+<p>Hold the phone near the speaker and try again. It recognises recorded music, not humming or singing, and it cannot identify music playing from the same phone. It needs microphone permission, which you can check in the iPhone's Settings app under PiTunes.</p>
+
+<h2 id="bugs">Reporting a bug or asking a question</h2>
+<p>Open an issue on GitHub. Say what you did, what you expected and what happened instead. If the problem is with playback, the last lines of <code>journalctl -u pitunes -n 50</code> from the Pi help a lot.</p>
+<p><a class="btn primary" href="https://github.com/pf25/pitunes/issues">Open an issue on GitHub</a></p>
+</main>
+
+<footer>
+  <a href="/">Home</a><a href="support.html">Support</a><a href="privacy.html">Privacy</a><a href="https://github.com/pf25/pitunes">GitHub</a>
+  <p style="margin-top:14px;color:inherit">&copy; 2026 the PiTunes authors. Free software under the GPL-3.0 licence. PiTunes is an independent project, not affiliated with YouTube, Google or Apple.</p>
+</footer>
+
+</body>
+</html>

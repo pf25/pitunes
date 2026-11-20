@@ -1,0 +1,30 @@
+[project]
+name = "pitunes"
+version = "0.1.0"
+description = "Personal, self-hosted music streaming server (YouTube audio via yt-dlp)"
+# Raspberry Pi OS ships Python 3.11 (Bookworm) or 3.13 (Trixie); stay compatible
+# with both so uv can use the system Python on the Pi instead of downloading one.
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    # Plain uvicorn (no [standard] extras) keeps the install small on the Zero.
+    "uvicorn>=0.30",
+    # Async HTTP client used to proxy audio bytes from YouTube.
+    "httpx>=0.27",
+    # [default] pulls in yt-dlp-ejs, which (together with Deno) solves
+    # YouTube's JavaScript challenges.
+    "yt-dlp[default]",
+    "ytmusicapi>=1.12.4",
+]
+
+[project.scripts]
+pitunes = "pitunes.main:run"
+
+[build-system]
+requires = ["uv_build>=0.8,<0.12"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

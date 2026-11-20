@@ -1,0 +1,13 @@
+[Unit]
+Description=Update yt-dlp and Deno for pitunes
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as the normal user, NOT root: the script lives in the user's home, so
+# running it as root would let anything that can edit it become root. It
+# restarts pitunes through the one-command sudo rule in /etc/sudoers.d/pitunes.
+User=@USER@
+Environment=PATH=@HOME@/.deno/bin:@HOME@/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/bin/bash @HOME@/pitunes/deploy/update.sh

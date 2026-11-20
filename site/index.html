@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PiTunes: your own music and podcast player on a Raspberry Pi</title>
+<meta name="description" content="PiTunes is an ad-free music and podcast player you run yourself: a small server on a Raspberry Pi at home, and an app that opens in any browser on your phone, tablet or laptop. This page is the full build guide.">
+<meta name="theme-color" content="#0B0B0F">
+<meta property="og:title" content="PiTunes: your own music and podcast player on a Raspberry Pi">
+<meta property="og:description" content="A Raspberry Pi at home, an app on every device you own, nothing in the cloud. Full build guide.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://pitunes.com/">
+<meta property="og:image" content="https://pitunes.com/img/web-desktop.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/icon.png">
+<link rel="apple-touch-icon" href="img/icon.png">
+<style>
+:root{--bg:#0B0B0F;--surface:#15151B;--raised:#22222B;--accent:#FF4D67;--accent2:#8B5CF6;--on-accent:#12080D;
+  --text:#fff;--text2:rgba(255,255,255,.74);--text3:rgba(255,255,255,.46);--line:rgba(255,255,255,.09);
+  --gradient:linear-gradient(135deg,var(--accent),var(--accent2))}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);overflow-x:hidden;
+  font:17px/1.65 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px}
+
+/* Top bar */
+header.top{position:sticky;top:0;z-index:10;background:rgba(11,11,15,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+header.top .in{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1120px;margin:0 auto;padding:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--text);letter-spacing:-.01em}
+.brand:hover{text-decoration:none}
+.brand i{width:26px;height:26px;border-radius:8px;background:var(--gradient);display:inline-block}
+nav.links{display:flex;align-items:center;gap:22px;font-size:15px}
+nav.links a{color:var(--text2)}
+nav.links a.gh{color:var(--text);background:var(--raised);padding:7px 14px;border-radius:999px;font-weight:600}
+@media(max-width:640px){nav.links a:not(.gh){display:none}}
+
+/* Hero */
+/* The section spans the whole window so the glow behind it can fade out
+   smoothly on both sides; its contents stay in a centred column. */
+.hero{position:relative;text-align:center;padding:72px 20px 36px;overflow:hidden}
+.hero > *{position:relative;max-width:860px;margin-left:auto;margin-right:auto}
+.hero h1{margin:0 auto 20px}
+.hero .btns{margin:30px auto 12px}
+.hero .note{margin:0 auto}
+.hero::before{content:"";position:absolute;inset:0;max-width:none;
+  background:radial-gradient(ellipse 46% 70% at 50% 18%,rgba(255,77,103,.24),rgba(139,92,246,.13) 50%,rgba(139,92,246,0) 100%);pointer-events:none}
+.eyebrow{display:inline-block;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);
+  border:1px solid var(--line);background:rgba(255,255,255,.04);padding:6px 14px;border-radius:999px;margin:0 0 22px}
+h1{font-size:clamp(36px,7.4vw,64px);line-height:1.04;letter-spacing:-.035em;margin:0 0 20px;font-weight:800}
+h1 em{font-style:normal;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lede{font-size:clamp(17px,2.4vw,20px);color:var(--text2);max-width:640px}
+.btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:30px 0 12px}
+.btn{display:inline-flex;align-items:center;padding:14px 26px;border-radius:999px;font-weight:650;font-size:16px}
+.btn.primary{background:var(--accent);color:var(--on-accent);box-shadow:0 8px 28px rgba(255,77,103,.32)}
+.btn.ghost{background:var(--raised);color:var(--text)}
+.btn:hover{text-decoration:none;filter:brightness(1.08)}
+.note{font-size:14px;color:var(--text3);margin:0}
+
+/* The product, shown on a laptop and a phone */
+.stage{position:relative;max-width:1040px;margin:28px auto 0;padding:0 20px 7%}
+.browser{border-radius:14px;overflow:hidden;background:#101015;border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(0,0,0,.4)}
+.browser .bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:#1a1a21;border-bottom:1px solid var(--line)}
+.browser .bar b{width:10px;height:10px;border-radius:50%;background:#3a3a45}
+.browser .bar span{flex:1;max-width:340px;margin:0 auto;text-align:center;font-size:12px;color:var(--text3);background:#0f0f14;border-radius:8px;padding:4px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.phone{border-radius:13% / 6.2%;overflow:hidden;background:#000;border:6px solid #1c1c24;box-shadow:0 30px 70px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.10)}
+.stage .phone{position:absolute;right:max(20px,3%);bottom:0;width:23%;min-width:104px;border-width:5px}
+@media(min-width:900px){.stage .phone{right:-8px;border-width:8px}}
+
+/* Phone screens in a row */
+.gallery{display:flex;gap:18px;overflow-x:auto;padding:56px 20px 28px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;align-items:flex-start}
+.gallery::-webkit-scrollbar{display:none}
+.gallery figure{flex:0 0 auto;width:62vw;max-width:230px;margin:0;scroll-snap-align:center}
+.gallery figcaption{font-size:14px;color:var(--text2);text-align:center;margin-top:12px}
+.gallery figcaption b{display:block;color:var(--text);font-size:15px}
+@media(min-width:1180px){.gallery{justify-content:center;overflow:visible}.gallery figure{width:200px}}
+
+/* Article */
+h2{font-size:clamp(27px,4.6vw,36px);line-height:1.15;letter-spacing:-.025em;margin:88px 0 16px;scroll-margin-top:76px;font-weight:750}
+h3{font-size:20px;line-height:1.3;margin:36px 0 8px;scroll-margin-top:76px}
+p{margin:0 0 16px;color:var(--text2)}
+li{color:var(--text2);margin-bottom:8px}
+ul,ol{padding-left:22px;margin:0 0 16px}
+strong{color:var(--text)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:0 0 16px}
+.card p:last-child{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:0 0 16px}
+.grid .card{margin:0;transition:border-color .2s,transform .2s}
+.grid .card:hover{border-color:rgba(255,77,103,.45);transform:translateY(-2px)}
+.grid h3{margin:0 0 6px;font-size:17px}
+.grid p{margin:0;font-size:15px}
+pre{background:#060609;border:1px solid var(--line);border-radius:12px;padding:15px 18px;overflow-x:auto;margin:0 0 16px;-webkit-user-select:all;user-select:all}
+code{font:14.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#f3f3f6}
+p code,li code,td code{background:var(--raised);padding:2px 6px;border-radius:6px;font-size:14px}
+.step{display:flex;gap:14px;align-items:center;margin:56px 0 10px}
+.step .n{flex:0 0 auto;width:38px;height:38px;border-radius:50%;background:var(--gradient);color:#fff;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:17px}
+.step h3{margin:0;font-size:24px;letter-spacing:-.01em}
+.photo-real + .note{margin-bottom:24px}
+.photo-real{width:100%;border-radius:18px;border:1px solid var(--line);margin:10px 0 10px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+table{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:16px}
+td,th{text-align:left;padding:12px 8px;border-bottom:1px solid var(--line);color:var(--text2);vertical-align:top}
+th{color:var(--text3);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em}
+td:first-child{color:var(--text);font-weight:600;white-space:nowrap;padding-right:18px}
+@media(max-width:520px){td:first-child{white-space:normal}}
+details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin:0 0 10px}
+summary{cursor:pointer;font-weight:600;color:var(--text)}
+details p{margin:10px 0 0}
+.warn{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 14px 14px 0;padding:16px 18px;margin:0 0 16px}
+.warn p:last-child{margin:0}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 10px;margin:0 0 16px}
+.diagram svg{display:block;width:100%;height:auto}
+footer{border-top:1px solid var(--line);margin-top:96px;padding:30px 20px 56px;font-size:14px;color:var(--text3);text-align:center}
+footer a{color:var(--text2);margin:0 8px}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="in">
+  <a class="brand" href="/"><i></i>PiTunes</a>
+  <nav class="links">
+    <a href="#how">How it works</a>
+    <a href="#guide">Build guide</a>
+    <a href="#features">Features</a>
+    <a href="#faq">FAQ</a>
+    <a class="gh" href="https://github.com/pf25/pitunes">GitHub</a>
+  </nav>
+</div></header>
+
+<main>
+<section class="hero">
+  <p class="eyebrow">Free and open source</p>
+  <h1>Your own music player, running on a <em>Raspberry Pi</em> at home.</h1>
+  <p class="lede">PiTunes is an ad-free music and podcast player that you host yourself. A small server runs on a Raspberry Pi in your house. You open it in a browser on your phone, tablet or laptop, add it to your home screen, and it works like an app, at home or anywhere else.</p>
+  <div class="btns">
+    <a class="btn primary" href="#guide">Read the build guide</a>
+    <a class="btn ghost" href="https://github.com/pf25/pitunes">Source on GitHub</a>
+  </div>
+  <p class="note">No subscription. No account with us. No Google login. Nothing in the cloud.</p>
+</section>
+
+<section class="stage" aria-label="PiTunes on a laptop and a phone">
+  <div class="browser">
+    <div class="bar"><b></b><b></b><b></b><span>music.your-tailnet.ts.net</span></div>
+    <img src="img/web-desktop.png" width="1600" height="1000" alt="PiTunes in a laptop browser: a sidebar with playlists, a search bar, an album page, and the player bar along the bottom">
+  </div>
+  <div class="phone"><img src="img/web-player.png" width="600" height="1304" alt="The PiTunes player on a phone: artwork, play controls and the Up Next queue"></div>
+</section>
+
+<section class="gallery" aria-label="Screens on a phone">
+  <figure><div class="phone"><img src="img/web-home.png" width="600" height="1304" alt="Home: mood chips and a speed dial grid of your most played songs" loading="lazy"></div><figcaption><b>Home</b>Your most played, one tap away</figcaption></figure>
+  <figure><div class="phone"><img src="img/web-shelves.png" width="600" height="1304" alt="Shelves of songs and playlists, with the playing song marked" loading="lazy"></div><figcaption><b>Browse</b>Mixes, charts and moods</figcaption></figure>
+  <figure><div class="phone"><img src="img/web-player.png" width="600" height="1304" alt="The player with shuffle, repeat, lyrics and the Up Next queue" loading="lazy"></div><figcaption><b>Player</b>Queue, lyrics, sleep timer</figcaption></figure>
+  <figure><div class="phone"><img src="img/web-podcasts.png" width="600" height="1304" alt="Podcasts: category chips and top shows" loading="lazy"></div><figcaption><b>Podcasts</b>Follow shows, resume episodes</figcaption></figure>
+  <figure><div class="phone"><img src="img/web-library.png" width="600" height="1304" alt="Library: liked songs, downloads, history and playlists" loading="lazy"></div><figcaption><b>Library</b>Likes, playlists, downloads</figcaption></figure>
+</section>
+
+<div class="wrap">
+
+<h2 id="why">Why I built this</h2>
+<p>I was on a YouTube Premium family plan that I shared with friends. Then YouTube removed us from it, because we do not live in the same household. I looked at what it would cost to sign up on my own: about $15 a month for music, or a little over $20 for Premium.</p>
+<p>The thing is, music is the only reason I use YouTube. I do not care much about ads on videos. So I asked a different question: could I build a player where I pay for the hardware once and never pay a subscription again?</p>
+<p>I had a Raspberry Pi Zero 2 W, a computer the size of a stick of gum that costs about as much as one month of that subscription. PiTunes is what came out of it: a server small enough for the cheapest Pi, and an app that feels like a normal music app on every device I own.</p>
+
+<img class="photo-real" src="img/pi-case.jpg" width="1400" height="1050" alt="A Raspberry Pi Zero 2 W in a black 3D-printed case on a wooden shelf, its green light on" loading="lazy">
+<p class="note">My PiTunes server: a Pi Zero 2 W in a 3D-printed case. It sits on a shelf at home.</p>
+
+<p>This page explains how it works and walks through the whole setup, so you can copy it. If you can follow instructions and paste a few commands, you can build it. You do not need to have used a Raspberry Pi before.</p>
+
+<h2 id="how">How it works</h2>
+<p>There are three parts, and each one does a single job.</p>
+
+<div class="diagram">
+<svg viewBox="0 0 720 210" role="img" aria-label="Diagram: your devices talk to the Raspberry Pi over Tailscale, and the Pi fetches audio from YouTube and podcast feeds">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#FF4D67"/></marker>
+  </defs>
+  <g font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif" text-anchor="middle">
+    <rect x="14" y="50" width="170" height="110" rx="16" fill="#25252E"/>
+    <text x="99" y="96" fill="#fff" font-size="19" font-weight="600">Your devices</text>
+    <text x="99" y="122" fill="#b8b8c0" font-size="14">browse, play,</text>
+    <text x="99" y="141" fill="#b8b8c0" font-size="14">download</text>
+
+    <line x1="190" y1="105" x2="268" y2="105" stroke="#FF4D67" stroke-width="2.5" marker-end="url(#arr)" marker-start="url(#arr)"/>
+    <text x="229" y="92" fill="#b8b8c0" font-size="13">Tailscale</text>
+    <text x="229" y="128" fill="#77777f" font-size="12">private,</text>
+    <text x="229" y="144" fill="#77777f" font-size="12">encrypted</text>
+
+    <rect x="275" y="50" width="170" height="110" rx="16" fill="#25252E" stroke="#FF4D67" stroke-width="1.5"/>
+    <text x="360" y="96" fill="#fff" font-size="19" font-weight="600">Raspberry Pi</text>
+    <text x="360" y="122" fill="#b8b8c0" font-size="14">PiTunes server,</text>
+    <text x="360" y="141" fill="#b8b8c0" font-size="14">your library</text>
+
+    <line x1="451" y1="105" x2="529" y2="105" stroke="#FF4D67" stroke-width="2.5" marker-end="url(#arr)"/>
+    <text x="490" y="92" fill="#b8b8c0" font-size="13">internet</text>
+
+    <rect x="536" y="26" width="170" height="70" rx="16" fill="#17171D" stroke="#3a3a45"/>
+    <text x="621" y="68" fill="#fff" font-size="16" font-weight="600">YouTube audio</text>
+    <rect x="536" y="114" width="170" height="70" rx="16" fill="#17171D" stroke="#3a3a45"/>
+    <text x="621" y="156" fill="#fff" font-size="16" font-weight="600">Podcast feeds</text>
+  </g>
+</svg>
+</div>
+
+<ul>
+  <li><strong>The Raspberry Pi</strong> runs the PiTunes server. It searches, finds the audio for a song, passes it on to your device, and keeps a copy of recently played songs so they start instantly next time. It also stores your likes, playlists and history. All of that stays on the Pi.</li>
+  <li><strong>Tailscale</strong> is a free private network that connects your own devices to each other. It lets your devices reach the Pi from anywhere without opening your home router to the internet. The server only listens on Tailscale, so nobody outside your network can see it.</li>
+  <li><strong>The app</strong> is a web app that the Pi itself serves. You open the Pi's address in a browser and add it to your home screen. It plays in the background, shows on the lock screen with play, pause and skip, and can download songs for offline use. On a laptop the same address gives you a full desktop layout.</li>
+</ul>
+<p>Music is fetched from YouTube without signing in. Podcasts come straight from each show's public feed.</p>
+
+<h2 id="need">What you need</h2>
+<table>
+  <tr><th>Item</th><th>Notes</th></tr>
+  <tr><td>Raspberry Pi</td><td>A Raspberry Pi Zero 2 W is enough, and it is what this was built and measured on. Any newer or larger Pi also works.</td></tr>
+  <tr><td>microSD card</td><td>16 GB or more. The server keeps up to 4 GB of recently played songs by default.</td></tr>
+  <tr><td>Power supply</td><td>The official supply for your Pi model, or a good 5 V USB adapter.</td></tr>
+  <tr><td>Tailscale account</td><td>Free for personal use. You sign in with a Google, Apple, Microsoft or GitHub account.</td></tr>
+  <tr><td>Something to listen on</td><td>Any phone, tablet or computer with a current browser: iPhone, Android, iPad, Mac, Windows or Linux.</td></tr>
+  <tr><td>A computer</td><td>Only for the setup: to write the SD card and to type a few commands. Mac, Windows or Linux.</td></tr>
+</table>
+<p>A case is optional. Mine is 3D printed.</p>
+
+<h2 id="guide">The build guide</h2>
+<p>Five steps. Plan for about an hour, most of it waiting for things to install.</p>
+
+<div class="step"><span class="n">1</span><h3 id="step-1">Put Raspberry Pi OS on the SD card</h3></div>
+<p>The Pi needs an operating system, and it reads it from the SD card. Raspberry Pi Imager is the official tool that writes it for you and lets you set up Wi-Fi in advance, so the Pi never needs a screen or keyboard.</p>
+<ol>
+  <li>Install <a href="https://www.raspberrypi.com/software/">Raspberry Pi Imager</a> on your computer and put the SD card in.</li>
+  <li>Choose your Pi model, then choose <strong>Raspberry Pi OS (other)</strong> and <strong>Raspberry Pi OS Lite (64-bit)</strong>. "Lite" has no desktop, which leaves more memory for the server.</li>
+  <li>When Imager asks whether to customise the settings, say yes and fill in:
+    <ul>
+      <li><strong>Hostname:</strong> <code>music</code>. This becomes the Pi's name on your network and part of your player's address.</li>
+      <li><strong>Username and password:</strong> pick your own. You will use them once or twice to log in.</li>
+      <li><strong>Wi-Fi:</strong> your home network's name and password. A Pi Zero 2 W only connects to 2.4 GHz Wi-Fi.</li>
+      <li><strong>Enable SSH</strong> with password login. SSH is how you type commands on the Pi from your computer.</li>
+    </ul>
+  </li>
+  <li>Write the card, put it in the Pi and plug in the power. The first start takes a few minutes.</li>
+</ol>
+<p>Now log in from your computer. Open Terminal (Mac or Linux) or PowerShell (Windows) and type this, with your own username in place of <code>you</code>:</p>
+<pre><code>ssh you@music.local</code></pre>
+<p>Answer <code>yes</code> to the question about trusting the host, then type the password you chose. If <code>music.local</code> is not found, wait two more minutes and try again, or look up the Pi's IP address in your router's list of devices and use that instead of <code>music.local</code>.</p>
+
+<div class="step"><span class="n">2</span><h3 id="step-2">Install Tailscale</h3></div>
+<p>Tailscale gives the Pi and your devices a private connection to each other that works from anywhere. Without it, the app would only work on your home Wi-Fi.</p>
+<p>On the Pi, in the SSH session from step 1, run:</p>
+<pre><code>curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up</code></pre>
+<p>The second command prints a link. Open it in a browser and sign in. That creates your private network (Tailscale calls it a tailnet) with the Pi as its first device.</p>
+<p>Then, on each phone, tablet or computer that will use PiTunes:</p>
+<ol>
+  <li>Install the <strong>Tailscale</strong> app (App Store, Google Play, or tailscale.com for computers).</li>
+  <li>Sign in with the same account and allow the VPN configuration when asked.</li>
+  <li>Check that <code>music</code> appears in the app's list of devices.</li>
+</ol>
+<div class="card">
+  <p><strong>One setting worth changing now.</strong> By default a device's Tailscale login expires after about six months, and the Pi would silently drop off your network. In the <a href="https://login.tailscale.com/admin/machines">Tailscale admin page</a>, open the menu next to <code>music</code> and choose <strong>Disable key expiry</strong>.</p>
+</div>
+<div class="card">
+  <p><strong>Switch on HTTPS, for offline listening.</strong> Browsers only let a web app store songs on your device when it is opened on a secure <code>https</code> address. Tailscale provides one for free. In the <a href="https://login.tailscale.com/admin/dns">DNS page of the admin console</a>, scroll to <strong>HTTPS Certificates</strong> and choose <strong>Enable HTTPS</strong>. Do this before step 3 and the installer sets up the rest.</p>
+  <p>Tailscale will tell you that the Pi's name, something like <code>music.your-tailnet.ts.net</code>, is then listed in a public certificate log. Only the name is public. Nobody outside your Tailscale network can reach the Pi.</p>
+</div>
+
+<div class="step"><span class="n">3</span><h3 id="step-3">Install the PiTunes server</h3></div>
+<p>One command, run on the Pi, installs everything the server needs, sets it to start on its own whenever the Pi boots, and starts it.</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/pf25/pitunes/main/install.sh | bash</code></pre>
+<p>On a Pi Zero 2 W expect this to take a while, ten minutes or more, most of it downloading and installing packages. It prints each step as it goes and may ask for your password once. When it finishes it prints the address of your player, for example <code>https://music.your-tailnet.ts.net</code>.</p>
+<p>If you like to read a script before running it, it is <a href="https://github.com/pf25/pitunes/blob/main/install.sh">here on GitHub</a>.</p>
+
+<div class="step"><span class="n">4</span><h3 id="step-4">Open the app</h3></div>
+<p>There is nothing to install from a store. The Pi serves the app itself.</p>
+<ol>
+  <li>On your phone, with Tailscale switched on, open the address the installer printed in your browser. On an iPhone use Safari.</li>
+  <li>Add it to your home screen. On iPhone: the Share button, then <strong>Add to Home Screen</strong>. On Android: the browser menu, then <strong>Add to Home screen</strong> or <strong>Install app</strong>.</li>
+  <li>Open it from the new icon. It runs full screen like any other app.</li>
+</ol>
+<p>The first time, it asks "Who's listening?". Pick the profile it offers or type your name.</p>
+<p>That is the whole configuration. Search for a song and press play. On a Pi Zero 2 W, a song the Pi has never played takes 10 to 15 seconds to start while the Pi fetches it. After that it is kept on the Pi and starts instantly, and while you listen the Pi fetches the next songs in your queue ahead of time.</p>
+<p>On a laptop or desktop, open the same address in any browser. You get a wider layout with a sidebar, a search bar and a player bar along the bottom.</p>
+<div class="card">
+  <p><strong>If you skipped HTTPS,</strong> the player is at <code>http://music:8000</code> instead (with the hostname you chose). Everything works there except offline downloads.</p>
+</div>
+
+<div class="step"><span class="n">5</span><h3 id="step-5">Add your family</h3></div>
+<p>Each person gets their own likes, playlists, history, speed dial and podcasts. There are no passwords. The server recognises each device by its Tailscale account.</p>
+<ol>
+  <li>In the <a href="https://login.tailscale.com/admin/users">Tailscale admin page</a>, invite the other person by email. They accept and install Tailscale on their devices, signing in with their own account.</li>
+  <li>They open the same address and add it to their home screen.</li>
+  <li>The app asks "Who's listening?" once. They pick an existing profile or create a new one.</li>
+</ol>
+<p>From then on they always get their own profile, on any device signed in to their Tailscale account.</p>
+
+<h2 id="features">What it does</h2>
+<div class="grid">
+  <div class="card"><h3>Search</h3><p>Songs, albums, artists and playlists, with recent searches remembered on the device.</p></div>
+  <div class="card"><h3>Radio and autoplay</h3><p>When the queue runs out, similar songs follow. It picks album recordings rather than music videos.</p></div>
+  <div class="card"><h3>Speed dial</h3><p>A grid of your most played songs on the Home screen. Pin a song to keep it at the front.</p></div>
+  <div class="card"><h3>Likes and playlists</h3><p>Stored on your Pi, separate for each person.</p></div>
+  <div class="card"><h3>Offline downloads</h3><p>Download liked songs, a playlist or single songs to your device for flights and dead zones.</p></div>
+  <div class="card"><h3>Podcasts</h3><p>Browse by category, follow shows, resume where you stopped, and change the playback speed.</p></div>
+  <div class="card"><h3>Lyrics</h3><p>One tap from Now Playing, when lyrics are available for the song.</p></div>
+  <div class="card"><h3>Every screen size</h3><p>A phone layout with tabs, and a desktop layout with a sidebar, queue panel, volume and keyboard shortcuts.</p></div>
+  <div class="card"><h3>Sleep timer</h3><p>Stop playback after 15, 30, 45 or 60 minutes.</p></div>
+  <div class="card"><h3>Lock screen controls</h3><p>Title, artwork and play, pause and skip on the lock screen and from your headphones.</p></div>
+  <div class="card"><h3>Shuffle and repeat</h3><p>Shuffle what is up next, repeat the queue or repeat one song.</p></div>
+  <div class="card"><h3>Profiles for a household</h3><p>Each person has their own library, recognised by their Tailscale account. No passwords.</p></div>
+</div>
+
+<h2 id="native">There is also a native iPhone app</h2>
+<p>The same repository contains a native iPhone app written in SwiftUI. It adds three things the web app cannot do: a CarPlay screen for browsing in the car, identifying a song playing nearby, and podcast downloads. It is not on the App Store. To use it you build it yourself with Xcode on a Mac; the steps are in the <a href="https://github.com/pf25/pitunes/tree/main/ios"><code>ios</code> folder</a>.</p>
+<p>Most people will not need it. The web app is the intended way to use PiTunes.</p>
+
+<h2 id="numbers">Measured on a Pi Zero 2 W</h2>
+<p>These are numbers from my own Pi, a Zero 2 W with 512 MB of memory, on home Wi-Fi.</p>
+<table>
+  <tr><th>What</th><th>Result</th></tr>
+  <tr><td>Server memory use</td><td>80 to 130 MB, plus up to about 130 MB for the helper that solves YouTube's playback puzzles</td></tr>
+  <tr><td>Starting a song the Pi has never played</td><td>10 to 15 seconds</td></tr>
+  <tr><td>Starting a song the Pi has cached</td><td>Instant (under a tenth of a second)</td></tr>
+  <tr><td>The next songs in your queue</td><td>Fetched ahead while you listen, so they start without a wait</td></tr>
+  <tr><td>Space per cached song</td><td>About 4 MB, so the default 4 GB cache holds roughly 1,000 songs</td></tr>
+</table>
+<p>The wait on a never-played song is the Pi Zero's slow processor working out where the audio is. A larger Pi should be faster there; I have not measured one. Everything else is already quick.</p>
+
+<h2 id="running">Keeping it running</h2>
+<p>The setup is meant to be left alone.</p>
+<ul>
+  <li><strong>It updates the part that breaks.</strong> YouTube changes often, so once a week the server updates the library it uses to fetch audio (yt-dlp). After updating it checks that it can still fetch a test song. If that fails, it goes back to the previous version on its own.</li>
+  <li><strong>It is gentle on the SD card.</strong> Logs are kept in memory instead of being written to the card, because constant small writes wear SD cards out.</li>
+  <li><strong>It restarts itself.</strong> After a power cut the Pi boots and the server starts without you doing anything.</li>
+  <li><strong>The operating system gets security updates automatically.</strong></li>
+  <li><strong>To update PiTunes itself,</strong> run the install command from step 3 again. It keeps your library.</li>
+</ul>
+<p>Remember the Tailscale key expiry setting from step 2. It is the most common reason a setup like this stops working months later.</p>
+
+<h2 id="faq">Questions</h2>
+<details><summary>Does it cost anything to run?</summary><p>No subscriptions. Tailscale is free for personal use, and a Pi Zero 2 W uses very little electricity. Your only cost is the hardware.</p></details>
+<details><summary>Does it work away from home?</summary><p>Yes, as long as Tailscale is switched on in your device and your Pi at home is running. Music then uses mobile data, at roughly 1 MB per minute. Downloaded songs use none.</p></details>
+<details><summary>Do I need a Google or YouTube account?</summary><p>No. The server fetches audio without signing in. That also means there are no personal recommendations from your Google history. Your speed dial and mixes come from what you play in PiTunes.</p></details>
+<details><summary>Is my home network exposed to the internet?</summary><p>No. You do not open any ports on your router. The server only accepts connections that arrive through your own Tailscale network.</p></details>
+<details><summary>Can I use something other than a Raspberry Pi?</summary><p>The server is a small Python program and also runs on a Mac or any Linux machine. The install script and this guide are written for Raspberry Pi OS.</p></details>
+<details><summary>Does it work on Android, iPad, Windows?</summary><p>It is built to. The app is a web app, so it should run in any current browser: install Tailscale on the device, open your Pi's address and add it to the home screen. So far it has been used on iPhone (Safari) and in Chrome on a computer. If something is off on your device, please open an issue on GitHub.</p></details>
+<details><summary>Why is there no volume slider on iPhone?</summary><p>Apple does not let web pages change the volume on an iPhone. Use the side buttons. Other devices get a slider.</p></details>
+<details><summary>What happens when YouTube changes something and songs stop playing?</summary><p>That is what the weekly update is for. If playback breaks between updates, re-running the install command fetches the newest versions straight away. See <a href="support.html">Support</a>.</p></details>
+<details><summary>Where do I ask a question or report a bug?</summary><p>On GitHub, in the project's <a href="https://github.com/pf25/pitunes/issues">Issues</a>. That is the only support channel.</p></details>
+<details><summary>What data does the app collect?</summary><p>None. See the <a href="privacy.html">privacy policy</a>.</p></details>
+
+<h2 id="open-source">Open source</h2>
+<p>All of PiTunes is public under the GPL-3.0 licence: the server, the web app, the native iPhone app and the install scripts. You can read it, change it and run it yourself.</p>
+<p><a class="btn ghost" href="https://github.com/pf25/pitunes">github.com/pf25/pitunes</a></p>
+<p>Questions, bugs and ideas go in <a href="https://github.com/pf25/pitunes/issues">GitHub Issues</a>. You run your own server and your data stays on it.</p>
+
+<h2 id="responsibility">Know what you are doing</h2>
+<div class="warn">
+  <p>The PiTunes server plays audio from YouTube. Whether and how you do that is your own responsibility under YouTube's terms of service and the law where you live. PiTunes is a personal project for use on your own hardware.</p>
+  <p>PiTunes is not affiliated with, endorsed by or sponsored by YouTube, Google or Apple. Raspberry Pi is a trademark of Raspberry Pi Ltd. Tailscale is a trademark of Tailscale Inc.</p>
+</div>
+
+</div>
+</main>
+
+<footer>
+  <a href="/">Home</a><a href="support.html">Support</a><a href="privacy.html">Privacy</a><a href="https://github.com/pf25/pitunes">GitHub</a>
+  <p style="margin-top:14px;color:inherit">&copy; 2026 the PiTunes authors. Free software under the GPL-3.0 licence. PiTunes is an independent project.</p>
+</footer>
+
+</body>
+</html>

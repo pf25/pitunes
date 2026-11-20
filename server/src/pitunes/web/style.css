@@ -1,0 +1,367 @@
+/* PiTunes web app. Every size and colour here comes from the iPhone app's
+   design system (ios/PiTunes/Design/Theme.swift), so the two look the same.
+   Sections: tokens, basics, shared pieces, phone layout, computer layout. */
+
+:root {
+  /* colours */
+  --bg: #0B0B0F; --surface: #17171D; --raised: #25252E; --line: rgba(255,255,255,.08);
+  --accent: #FF4D67; --accent2: #8B5CF6; --on-accent: #12080D; --danger: #FF736B;
+  --text: #fff; --dim: rgba(255,255,255,.62); --faint: rgba(255,255,255,.40);
+  --gradient: linear-gradient(135deg, var(--accent), var(--accent2));
+  /* spacing (4-pt grid), radii, sizes */
+  --xs: 4px; --s: 8px; --m: 12px; --l: 16px; --xl: 24px; --xxl: 32px;
+  --r-s: 6px; --r-m: 10px; --r-l: 16px;
+  --row-art: 48px; --card: 148px; --card-large: 200px; --hero: 220px; --tap: 44px;
+  --tabs: 50px; --mini: 60px;
+  --top: env(safe-area-inset-top, 0px); --bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ------------------------------------------------------------------ basics */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; background: var(--bg); color: var(--text);
+  font: 17px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+/* An iPhone quirk: once the app is on the home screen, a short page is laid out
+   one status-bar-height too short, so everything pinned to the bottom (tab bar,
+   mini player) floats above the bottom edge. Making the page at least a full
+   screen tall keeps them where they belong. */
+html { min-height: calc(100% + var(--top)); }
+body { overscroll-behavior-y: none; min-height: 100vh; min-height: 100lvh; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+img { background: var(--raised); }
+h1 { font-size: 34px; font-weight: 700; letter-spacing: -.02em; margin: 0; }
+h2 { font-size: 22px; margin: 0; } h3 { font-size: 22px; font-weight: 700; margin: 0; }
+p { margin: var(--s) 0; }
+svg { fill: currentColor; }
+.dim { color: var(--dim); } .small { font-size: 13px; } .strong { font-weight: 600; } .grow { flex: 1; min-width: 0; }
+.one-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.two-lines { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+[hidden] { display: none !important; }
+.desk-only { display: none; }
+.danger { color: var(--danger); }
+
+/* ----------------------------------------------------------- shared pieces */
+
+/* Buttons */
+.icon { width: var(--tap); height: var(--tap); display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 50%; }
+.icon svg { width: 24px; height: 24px; }
+.icon.big svg { width: 34px; height: 34px; }
+.icon.on { color: var(--accent); }
+.icon:disabled { opacity: .3; cursor: default; }
+.play { width: 70px; height: 70px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+  display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.play svg { width: 34px; height: 34px; }
+/* The one main action (Play) and its supporting actions (Shuffle, Radio). */
+.primary, .secondary { display: inline-flex; align-items: center; justify-content: center; gap: var(--s); min-height: var(--tap);
+  padding: 0 18px; border-radius: 999px; font-size: 15px; font-weight: 600; white-space: nowrap; transition: transform .15s; }
+.primary { background: var(--accent); color: var(--on-accent); }
+.secondary { background: var(--raised); color: #fff; }
+.secondary.danger { color: var(--danger); }
+.primary:active, .secondary:active { transform: scale(.97); }
+.primary svg, .secondary svg { width: 18px; height: 18px; }
+/* Two or three of them sharing a row equally. */
+.pair { display: flex; gap: var(--m); margin: var(--m) 0; }
+.pair > * { flex: 1; min-width: 0; }
+/* Small pill for filters and moods. */
+.chip { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px;
+  background: var(--raised); font-size: 15px; font-weight: 500; white-space: nowrap; flex: none; }
+.chip.on { background: var(--accent); color: var(--on-accent); }
+.chip svg { width: 16px; height: 16px; }
+.chip:active { opacity: .7; }
+.link { color: var(--accent); }
+
+input[type=search], input[type=text] { width: 100%; padding: 9px 14px; border-radius: var(--r-m); border: 0; outline: 0;
+  background: var(--raised); color: var(--text); font: inherit; -webkit-appearance: none; }
+input::placeholder { color: var(--faint); }
+input[type=range] { accent-color: #fff; }
+select { font: inherit; color: var(--dim); background: none; border: 0; outline: 0; text-align: right; max-width: 60%; }
+
+/* The bar at the top of a screen. */
+.navbar { display: flex; align-items: center; gap: var(--s); min-height: var(--tap); margin: 0 -8px var(--s); }
+/* Root tabs, as on iOS: a 44-point bar holding the buttons, then the large title under it. */
+.navbar.root { display: block; margin: 0 0 var(--m); }
+.navbar.root .nav-actions { min-height: var(--tap); margin-right: -8px; }
+.navbar.root h1 { margin-top: 2px; }
+.nav-title { flex: 1; text-align: center; font-weight: 600; }
+.nav-actions { display: flex; align-items: center; gap: 2px; min-width: var(--tap); justify-content: flex-end; }
+.navbtn { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); min-width: var(--tap); justify-content: center;
+  color: var(--accent); font-size: 16px; padding: 0 6px; }
+.navbtn svg { width: 24px; height: 24px; }
+.navbtn.with-text svg { width: 20px; height: 20px; }
+.navbtn:not(.with-text) span { display: none; }
+.navbtn select { position: absolute; inset: 0; opacity: 0; max-width: none; width: 100%; cursor: pointer; }
+
+/* Rows: songs, albums, artists, episodes, library entries */
+.row { display: flex; align-items: center; gap: var(--m); min-height: 56px; padding: var(--xs) 0; cursor: pointer; }
+/* Dividers start at the text, not under the artwork (as iOS lists do). */
+.list > .row + .row { background: linear-gradient(var(--line), var(--line)) no-repeat 60px 0 / calc(100% - 60px) 1px; }
+.list > .row { min-height: 60px; }
+.row .t { font-size: 17px; } .row .s { font-size: 12px; margin-top: 2px; }
+.row .len { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.row .chev { color: var(--faint); display: inline-flex; } .row .chev svg { width: 20px; height: 20px; }
+.row .icon { margin-right: -10px; }
+.row.plain .lead { width: 28px; display: inline-flex; justify-content: center; color: var(--dim); } .row.plain .lead svg { width: 20px; height: 20px; }
+.row.plain { min-height: var(--tap); }
+.row.episode { align-items: flex-start; padding: var(--s) 0; }
+.row.episode.finished .t { color: var(--dim); }
+.row .inline svg { width: 12px; height: 12px; vertical-align: -2px; margin-right: 4px; }
+/* Artwork, with "now playing" bars drawn over it for the current song */
+.art { position: relative; width: var(--row-art); height: var(--row-art); flex: none; border-radius: var(--r-s); overflow: hidden; }
+.art.round { border-radius: 50%; }
+.art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.eq { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; gap: 3px; background: rgba(0,0,0,.55); }
+.eq b { width: 3px; height: 14px; border-radius: 2px; background: var(--accent); animation: eq .9s ease-in-out infinite; transform-origin: center; }
+.eq b:nth-child(2) { animation-delay: -.3s; } .eq b:nth-child(3) { animation-delay: -.6s; }
+@keyframes eq { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+body.paused .eq b { animation-play-state: paused; }
+.now .eq { display: flex; }
+.now .t { color: var(--accent); }
+/* Small heart on liked songs */
+.liked-mark { display: none; color: var(--accent); } .liked-mark svg { width: 13px; height: 13px; display: block; }
+.liked .liked-mark { display: block; }
+/* ...and a small arrow on songs stored on this device */
+.dl-mark { display: none; color: var(--faint); } .dl-mark svg { width: 13px; height: 13px; display: block; }
+.dl .dl-mark { display: block; }
+.navbtn .count { font-size: 13px; font-variant-numeric: tabular-nums; }
+/* Icon in a rounded tile (Library rows) */
+.tile { width: var(--row-art); height: var(--row-art); flex: none; border-radius: var(--r-m); background: var(--raised);
+  display: inline-flex; align-items: center; justify-content: center; }
+.tile.gradient { background: var(--gradient); }
+.tile svg { width: 22px; height: 22px; }
+.epbar { height: 3px; border-radius: 2px; background: var(--raised); margin-top: 6px; overflow: hidden; }
+.epbar i { display: block; height: 100%; background: var(--accent); }
+
+/* Section titles */
+.section { margin: var(--xxl) 0 var(--m); display: flex; align-items: center; gap: var(--s); }
+.section h3 { flex: 1; }
+.list-head { display: flex; justify-content: space-between; align-items: center; margin: var(--xl) 0 var(--xs); font-size: 20px; font-weight: 700; }
+.list-head button { font-size: 13px; font-weight: 400; color: var(--accent); }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--s); margin: var(--xl) 0 var(--s); }
+.arrows { display: none; }
+
+/* Sideways strips: they bleed to the screen edges like on the phone */
+.shelf, .chips, .dial, .quick, .chipgrid { margin-left: calc(-1 * var(--l)); margin-right: calc(-1 * var(--l)); padding-left: var(--l); padding-right: var(--l);
+  overflow-x: auto; scrollbar-width: none; scroll-behavior: smooth; }
+.shelf::-webkit-scrollbar, .chips::-webkit-scrollbar, .dial::-webkit-scrollbar, .quick::-webkit-scrollbar, .chipgrid::-webkit-scrollbar { display: none; }
+.shelf { display: flex; align-items: flex-start; gap: var(--m); }
+.chips { display: flex; gap: var(--s); margin-top: var(--m); margin-bottom: var(--m); }
+/* Mood chips: three rows, scrolling sideways */
+.chipgrid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, 36px); gap: var(--s); justify-content: start; }
+.chipgrid .chip { min-width: 96px; }
+/* Song shelves: four rows, swiped sideways a column at a time */
+.quick { display: grid; grid-auto-flow: column; grid-template-rows: repeat(4, 56px); grid-auto-columns: 310px; gap: var(--s) var(--l); justify-content: start; }
+.quick .row { min-width: 0; }
+
+/* Cards */
+.card { width: var(--card); flex: none; cursor: pointer; }
+.card.large { width: var(--card-large); }
+.card .pic { position: relative; margin-bottom: 6px; }
+.card img { width: 100%; aspect-ratio: 1; border-radius: var(--r-m); object-fit: cover; display: block; }
+.card.round img { border-radius: 50%; }
+.card .t { font-size: 15px; font-weight: 500; } .card .s { font-size: 12px; margin-top: 2px; }
+.card .go { display: none; }
+.badge-br { position: absolute; right: 6px; bottom: 6px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,.6);
+  display: flex; align-items: center; justify-content: center; }
+.badge-br svg { width: 14px; height: 14px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card), 1fr)); gap: var(--xl) var(--l); }
+.grid .card { width: auto; }
+
+/* Speed dial: pages of 3 x 3 squares you swipe between */
+.dial { display: flex; scroll-snap-type: x mandatory; gap: var(--xxl); }
+.dial .page { flex: none; width: 100%; scroll-snap-align: center; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s); align-content: start; }
+.dial button { position: relative; aspect-ratio: 1; min-width: 0; border-radius: var(--r-m); overflow: hidden; text-align: left; background: var(--raised); }
+.dial img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dial span { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px var(--s) var(--s); font-size: 12px;
+  background: linear-gradient(transparent, rgba(0,0,0,.85)); }
+.dial b { font-weight: 600; }
+.dial .eq.badge { inset: 6px 6px auto auto; width: 26px; height: 26px; border-radius: 50%; background: rgba(0,0,0,.6); gap: 2px; }
+.dial .eq.badge b { width: 2px; height: 10px; }
+.dial .pin { position: absolute; top: 6px; left: 6px; width: 22px; height: 22px; padding: 4px; border-radius: 50%; background: rgba(0,0,0,.6); }
+.dial .pin svg { width: 14px; height: 14px; display: block; }
+.dots { display: flex; justify-content: center; gap: 6px; margin-top: var(--m); }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.25); }
+.dots i.on { background: #fff; }
+
+/* Album / playlist / artist / show header */
+.hero { text-align: center; margin-bottom: var(--s); }
+.hero img { width: var(--hero); height: var(--hero); border-radius: var(--r-l); object-fit: cover; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.hero.round img { border-radius: 50%; box-shadow: none; }
+.hero h1 { font-size: 22px; letter-spacing: 0; margin: var(--m) 0 var(--xs); }
+.hero.round h1 { font-size: 34px; letter-spacing: -.02em; }
+.hero .dim { font-size: 15px; }
+.hero .about { text-align: left; font-size: 13px; color: var(--dim); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Settings and forms: grouped rows with a small heading above and a note below */
+.form { background: var(--surface); border-radius: var(--r-m); overflow: hidden; }
+.form-row { display: flex; align-items: center; justify-content: space-between; gap: var(--m); width: 100%; min-height: var(--tap); padding: 0 var(--l); text-align: left; }
+.form-row + .form-row { border-top: 1px solid var(--line); }
+.form-row input { background: none; padding: 0; border-radius: 0; }
+.form-head { font-size: 13px; text-transform: uppercase; color: var(--dim); margin: var(--xl) var(--l) 6px; }
+.form-foot { font-size: 13px; color: var(--dim); margin: 6px var(--l) 0; }
+
+/* Messages */
+.notice { display: flex; gap: var(--s); align-items: flex-start; padding: var(--m); border-radius: var(--r-m); background: var(--surface);
+  color: var(--dim); font-size: 12px; margin: var(--m) 0; }
+.notice.error { color: var(--danger); }
+.notice svg { width: 16px; height: 16px; flex: none; }
+.empty { text-align: center; padding: 64px var(--xl); color: var(--dim); }
+.empty svg { width: 52px; height: 52px; opacity: .6; }
+.empty h3 { color: #fff; margin: var(--m) 0 var(--xs); }
+.spinner { margin: 80px auto; width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--raised);
+  border-top-color: var(--dim); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lyrics { white-space: pre-wrap; line-height: 1.6; font-size: 20px; font-weight: 500; }
+
+/* Pop-up menu */
+#sheet { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.55); display: flex; align-items: flex-end; justify-content: center; }
+#sheet-box { width: 100%; max-width: 520px; max-height: 82vh; overflow-y: auto; background: #1F1F27;
+  border-radius: 14px 14px 0 0; padding: var(--s) 0 calc(var(--bottom) + var(--s)); animation: rise .18s ease-out; }
+@keyframes rise { from { transform: translateY(24px); opacity: 0; } }
+#sheet-box h3 { padding: var(--m) var(--l) var(--s); font-size: 13px; font-weight: 600; color: var(--dim); text-align: center; }
+#sheet-box button.item { display: flex; align-items: center; width: 100%; text-align: left; min-height: var(--tap); padding: 0 var(--l); border-top: 1px solid var(--line); }
+#sheet-box button.item svg { width: 20px; height: 20px; }
+#sheet-box button.item:hover, #sheet-box button.item:active { background: var(--raised); }
+#sheet-box .pad { padding: var(--s) var(--l) var(--m); border-top: 1px solid var(--line); }
+#sheet-box .form-head { margin-left: 0; }
+#toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tabs) + var(--mini) + var(--bottom) + 24px);
+  z-index: 50; background: #fff; color: #111; padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  max-width: 88vw; text-align: center; }
+
+/* ------------------------------------------------------------ phone layout */
+#view { max-width: 720px; margin: 0 auto; overflow-x: hidden;
+  padding: calc(var(--top) + var(--s)) var(--l) calc(var(--tabs) + var(--bottom) + var(--xl)); }
+body.playing #view { padding-bottom: calc(var(--tabs) + var(--mini) + var(--bottom) + var(--xxl)); }
+
+/* Tab bar */
+#nav { position: fixed; left: 0; right: 0; bottom: 0; height: calc(var(--tabs) + var(--bottom)); padding-bottom: var(--bottom);
+  background: rgba(11,11,15,.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--line); z-index: 5; }
+#nav-tabs { display: flex; height: var(--tabs); }
+#nav-tabs a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--dim); }
+#nav-tabs a.on { color: var(--accent); }
+#nav-tabs svg { width: 26px; height: 26px; }
+#nav .brand, #side-lists { display: none; }
+
+/* Mini player: floating card above the tabs */
+#mini { position: fixed; left: var(--s); right: var(--s); bottom: calc(var(--tabs) + var(--bottom) + var(--xs)); height: 56px;
+  display: flex; align-items: center; gap: var(--m); padding: var(--s) 0 var(--s) var(--s); background: var(--raised); border-radius: var(--r-l);
+  box-shadow: 0 4px 8px rgba(0,0,0,.4); overflow: hidden; z-index: 6; }
+#mini img { width: 40px; height: 40px; border-radius: var(--r-s); object-fit: cover; }
+#mini [data-bind=title] { font-size: 15px; font-weight: 500; }
+#mini .icon svg { width: 22px; height: 22px; }
+.progress { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--accent); }
+
+/* Full player */
+#player { position: fixed; inset: 0; z-index: 10; overflow-y: auto; background: linear-gradient(#2a1820, var(--bg) 50%);
+  padding: calc(var(--top) + var(--s)) var(--xl) calc(var(--bottom) + var(--xxl)); animation: slide-up .25s ease-out; }
+@keyframes slide-up { from { transform: translateY(100%); } }
+#player > * { max-width: 520px; margin-left: auto; margin-right: auto; }
+#player header { position: relative; display: flex; align-items: center; justify-content: space-between; margin: 0 -10px var(--m); max-width: 540px; }
+#player header .icon:first-child svg { width: 28px; height: 28px; }
+.grabber { position: absolute; left: 50%; top: -2px; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: rgba(255,255,255,.3); }
+#player .cover { display: block; width: 100%; max-width: 300px; aspect-ratio: 1; object-fit: cover; border-radius: var(--r-l);
+  box-shadow: 0 12px 24px rgba(0,0,0,.5); }
+.title-row { display: flex; align-items: flex-start; gap: var(--s); margin-top: var(--xl); }
+.title-row [data-bind=artist] { font-size: 17px; margin-top: var(--xs); }
+.title-row .icon svg { width: 28px; height: 28px; }
+#player .seek { width: 100%; margin: var(--xl) 0 2px; display: block; }
+.times { display: flex; justify-content: space-between; font-size: 12px; font-variant-numeric: tabular-nums; }
+.controls { display: flex; align-items: center; justify-content: space-between; margin-top: var(--l); }
+.volume-row { display: flex; align-items: center; gap: var(--xs); margin-top: var(--m); }
+.volume-row .volume { flex: 1; }
+body.no-volume .volume-row, body.no-volume #bar .volume, body.no-volume #bar [data-act=mute] { display: none; }
+
+/* --------------------------------------------------------- computer layout */
+@media (min-width: 900px) {
+  :root { --side: 240px; --topbar: 64px; --barh: 76px; --panel: 0px; --tabs: 0px; --mini: 0px; --card: 180px; --card-large: 240px; }
+  body.panel-open { --panel: 380px; }
+  .phone-only { display: none !important; }
+  .desk-only { display: revert; }
+
+  /* Sidebar */
+  #nav { top: 0; bottom: 0; right: auto; width: var(--side); height: auto; padding: 18px 12px 12px; border-top: 0; border-right: 1px solid var(--line);
+    background: #08080b; backdrop-filter: none; overflow-y: auto; }
+  body.playing #nav { bottom: var(--barh); }
+  #nav .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; padding: 4px 12px 18px; }
+  #nav .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  #nav-tabs { flex-direction: column; height: auto; gap: 2px; }
+  #nav-tabs a { flex: none; flex-direction: row; justify-content: flex-start; gap: 16px; font-size: 15px; font-weight: 600; padding: 11px 14px; border-radius: var(--r-m); }
+  #nav-tabs a:hover { background: var(--surface); color: #fff; }
+  #nav-tabs a.on { background: var(--raised); color: #fff; }
+  #nav-tabs svg { width: 24px; height: 24px; }
+  #side-lists { display: block; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+  #side-lists .new { width: 100%; margin-bottom: 10px; min-height: 38px; font-size: 14px; }
+  #side-lists a { display: block; font-size: 13px; padding: 8px 14px; color: var(--dim); border-radius: var(--r-m); }
+  #side-lists a:hover { background: var(--surface); }
+  #side-lists a b { display: block; color: #fff; font-weight: 500; font-size: 14px; }
+  #side-lists .settings-link { margin-top: 10px; border-top: 1px solid var(--line); border-radius: 0; padding-top: 14px; }
+
+  /* Top bar */
+  #topbar { display: flex; align-items: center; gap: 6px; position: fixed; top: 0; left: var(--side); right: var(--panel); height: var(--topbar);
+    padding: 0 28px; background: rgba(11,11,15,.9); backdrop-filter: blur(16px); z-index: 4; }
+  #top-search { max-width: 520px; margin-left: 10px; border-radius: 999px; padding: 11px 18px; font-size: 15px; }
+
+  #view { max-width: none; margin: 0 var(--panel) 0 var(--side); padding: calc(var(--topbar) + 4px) 36px 48px; }
+  body.playing #view { padding-bottom: calc(var(--barh) + 40px); }
+  /* The top bar has back and forward, so screens show a big left-aligned title instead. */
+  .navbar { margin: var(--s) 0 var(--l); }
+  .navbar .back { display: none; }
+  .nav-title { text-align: left; font-size: 34px; font-weight: 700; letter-spacing: -.02em; }
+  .navbtn { background: var(--raised); color: #fff; border-radius: 999px; padding: 0 14px; font-size: 14px; font-weight: 600; min-height: 38px; }
+  .navbtn:hover { background: #30303a; }
+  .navbtn:not(.with-text) span { display: inline; }
+  .navbtn svg { width: 20px; height: 20px; }
+  /* Album, artist and show pages already have a big title next to the artwork. */
+  #view:has(.hero) .nav-title { visibility: hidden; }
+  #view:has(.hero) .navbar { margin-bottom: 0; }
+
+  /* Player bar */
+  #bar { display: grid; grid-template-columns: 1fr minmax(0, 1.4fr) 1fr; align-items: center; gap: 16px; position: fixed; left: 0; right: 0; bottom: 0;
+    height: var(--barh); padding: 0 18px; background: #16161c; border-top: 1px solid var(--line); z-index: 20; }
+  #bar .seek { position: absolute; left: 0; right: 0; top: -9px; width: 100%; height: 16px; margin: 0; cursor: pointer; accent-color: var(--accent); }
+  .bar-left, .bar-mid, .bar-right { display: flex; align-items: center; gap: 4px; min-width: 0; }
+  .bar-mid { gap: 12px; } .bar-right { justify-content: flex-end; }
+  .bar-mid img { width: 48px; height: 48px; border-radius: var(--r-s); object-fit: cover; flex: none; }
+  .bar-mid .strong { font-size: 15px; }
+  .times-inline { margin-left: 8px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #bar .volume { width: 110px; }
+  .icon:hover:not(:disabled) { background: rgba(255,255,255,.08); }
+
+  /* Queue / lyrics panel */
+  #panel { display: block; position: fixed; top: 0; right: 0; bottom: var(--barh); width: 380px; padding: 18px 16px; overflow-y: auto;
+    background: #0e0e13; border-left: 1px solid var(--line); z-index: 6; }
+  .panel-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  #panel .lyrics { font-size: 17px; }
+
+  /* Screens get more room; strips stop bleeding and get arrow buttons */
+  .row { padding: var(--xs) var(--s); margin: 0 calc(-1 * var(--s)); border-radius: var(--r-m); }
+  .row:hover { background: var(--surface); }
+  .list > .row + .row { background: none; }
+  .list > .row:hover { background: var(--surface); }
+  .navbar.root { display: flex; align-items: center; }
+  .navbar.root h1 { flex: 1; margin-top: 0; }
+  .navbar.root .nav-actions { margin-right: 0; order: 2; }
+  .shelf, .chips, .dial, .quick, .chipgrid { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
+  .quick { grid-auto-columns: 380px; column-gap: var(--xl); }
+  .quick .row, .list .row { margin: 0; }
+  .list { max-width: 980px; }
+  .pair { max-width: 420px; }
+  .hero .pair { margin-bottom: 0; }
+  /* Hover a card to get a play button */
+  .card .go { display: flex; position: absolute; right: 8px; bottom: 8px; width: 44px; height: 44px; border-radius: 50%; background: var(--accent);
+    color: var(--on-accent); align-items: center; justify-content: center; opacity: 0; transform: translateY(6px); transition: .15s; box-shadow: 0 6px 16px rgba(0,0,0,.5); }
+  .card .go svg { width: 24px; height: 24px; }
+  .card:hover .go { opacity: 1; transform: none; }
+  .arrows { display: flex; gap: 6px; }
+  .arrows .icon { width: 36px; height: 36px; background: var(--surface); }
+  .dial { gap: var(--xl); scroll-snap-type: none; }
+  .dial .page { width: 420px; }
+  .dots { display: none; }
+  .hero { display: flex; gap: 28px; text-align: left; align-items: flex-end; margin-bottom: var(--xl); }
+  .hero img { width: 232px; height: 232px; flex: none; }
+  .hero h1, .hero.round h1 { font-size: 40px; letter-spacing: -.02em; margin-top: 0; }
+  .hero-text { min-width: 0; flex: 1; }
+  .form, .form-foot, .form-head, .notice { max-width: 640px; }
+  .empty { padding-top: 120px; }
+  #sheet { align-items: center; } #sheet-box { border-radius: 14px; max-width: 380px; }
+  #toast { bottom: calc(var(--barh) + 24px); }
+}

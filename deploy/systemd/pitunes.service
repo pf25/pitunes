@@ -1,0 +1,30 @@
+[Unit]
+Description=pitunes music server
+Wants=network-online.target tailscaled.service
+After=network-online.target tailscaled.service
+
+[Service]
+User=@USER@
+WorkingDirectory=@HOME@/pitunes/server
+Environment=PATH=@HOME@/.deno/bin:@HOME@/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONUNBUFFERED=1
+ExecStart=@HOME@/pitunes/deploy/start.sh
+Restart=always
+RestartSec=5
+
+# Sandboxing. The server parses data from YouTube and runs yt-dlp + Deno, so
+# limit what a bug in any of those could reach.
+NoNewPrivileges=true
+# /usr, /boot and /etc are read-only for the service
+ProtectSystem=full
+PrivateTmp=true
+# The service can't see SSH keys, sudo or shell history
+InaccessiblePaths=-@HOME@/.ssh -@HOME@/.bash_history -@HOME@/.gnupg
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

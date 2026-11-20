@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- viewport-fit=cover lets the page draw under the iPhone notch and home bar;
+     the CSS then adds padding with env(safe-area-inset-*). -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>PiTunes</title>
+<meta name="theme-color" content="#0B0B0F">
+<!-- These make "Add to Home Screen" on iPhone open full-screen like an app. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PiTunes">
+<link rel="apple-touch-icon" href="/web/icon-180.png">
+<link rel="icon" href="/web/icon-180.png">
+<link rel="manifest" href="/web/manifest.webmanifest">
+<link rel="stylesheet" href="/web/style.css">
+</head>
+<body>
+<!--
+  One page, two layouts (see style.css):
+    Phone:    screen + mini player + tab bar; the full player slides up.
+    Computer: sidebar + top search bar + screen + player bar; queue/lyrics panel on the right.
+  Player controls appear in several places. Instead of ids they carry
+    data-act="..."   what a click does        (wired up once in app.js)
+    data-bind="..."  what text/picture to show (filled in by drawPlayer)
+-->
+
+<!-- Tabs on a phone, sidebar on a computer. -->
+<nav id="nav">
+  <div class="brand"><img src="/web/icon-180.png" alt=""><b>PiTunes</b></div>
+  <!-- The five tabs (same ones, same icons, as the iPhone app); app.js fills this in. -->
+  <div id="nav-tabs"></div>
+  <!-- Computer only: your playlists, always one click away. -->
+  <div id="side-lists" class="desk-only"></div>
+</nav>
+
+<!-- Computer only: back/forward, search, profile. -->
+<header id="topbar" class="desk-only">
+  <button class="icon" data-act="back" aria-label="Back"></button>
+  <button class="icon" data-act="forward" aria-label="Forward"></button>
+  <input id="top-search" type="search" placeholder="Search songs, albums, artists, podcasts" autocomplete="off">
+  <span class="grow"></span>
+  <a id="top-profile" class="chip" href="#/settings"></a>
+</header>
+
+<!-- The current screen is drawn here by app.js. -->
+<main id="view"></main>
+
+<!-- Phone: small "now playing" bar above the tabs. Tap it to open the full player. -->
+<div id="mini" class="phone-only" hidden>
+  <img data-bind="art" alt="">
+  <div class="grow small"><div data-bind="title" class="one-line"></div><div data-bind="status" class="one-line dim"></div></div>
+  <button class="icon" data-act="toggle" data-bind="playicon" aria-label="Play or pause"></button>
+  <button class="icon" data-act="next" data-bind="nexticon" aria-label="Next"></button>
+  <div class="progress" data-bind="progress"></div>
+</div>
+
+<!-- Phone: the full player. -->
+<section id="player" class="phone-only" hidden>
+  <header>
+    <button class="icon" data-act="close-player" aria-label="Close"></button>
+    <span class="grabber"></span>
+    <button class="icon" data-act="menu" aria-label="More"></button>
+  </header>
+  <img class="cover" data-bind="art" alt="">
+  <div class="title-row">
+    <div class="grow"><h2 data-bind="title" class="two-lines"></h2><div data-bind="artist" class="dim one-line"></div></div>
+    <button class="icon" data-act="like" data-bind="likeicon" aria-label="Like"></button>
+  </div>
+  <input class="seek" type="range" min="0" max="1" step="1" value="0" aria-label="Position">
+  <div class="times dim"><span data-bind="now">0:00</span><span data-bind="total">0:00</span></div>
+  <div class="controls">
+    <button class="icon" data-act="shuffle" aria-label="Shuffle Up Next"></button>
+    <button class="icon big" data-act="prev" data-bind="previcon" aria-label="Previous"></button>
+    <button class="play" data-act="toggle" data-bind="playicon" aria-label="Play or pause"></button>
+    <button class="icon big" data-act="next" data-bind="nexticon" aria-label="Next"></button>
+    <button class="icon" data-act="repeat" data-bind="repeaticon" aria-label="Repeat"></button>
+  </div>
+  <!-- Volume. Hidden on iPhone, where Apple only allows the side buttons to change it. -->
+  <div class="volume-row">
+    <button class="icon" data-act="mute" data-bind="volicon" aria-label="Mute"></button>
+    <input class="volume" type="range" min="0" max="1" step="0.02" value="1" aria-label="Volume">
+  </div>
+  <div class="row-between">
+    <button class="chip" data-act="lyrics" data-bind="lyricschip">Lyrics</button>
+    <button class="chip" data-act="speed" data-bind="speedchip" hidden>1x</button>
+  </div>
+  <div class="row-between"><h3>Up Next</h3><button class="chip" data-act="autoplay" data-bind="autoplaychip">Autoplay</button></div>
+  <div data-bind="queue"></div>
+</section>
+
+<!-- Computer: player bar along the bottom. -->
+<footer id="bar" class="desk-only" hidden>
+  <input class="seek" type="range" min="0" max="1" step="1" value="0" aria-label="Position">
+  <div class="bar-left">
+    <button class="icon" data-act="prev" data-bind="previcon" aria-label="Previous"></button>
+    <button class="icon big" data-act="toggle" data-bind="playicon" aria-label="Play or pause"></button>
+    <button class="icon" data-act="next" data-bind="nexticon" aria-label="Next"></button>
+    <span class="dim small times-inline"><span data-bind="now">0:00</span> / <span data-bind="total">0:00</span></span>
+  </div>
+  <div class="bar-mid">
+    <img data-bind="art" alt="">
+    <div class="grow"><div data-bind="title" class="one-line strong"></div><div data-bind="status" class="one-line dim small"></div></div>
+    <button class="icon" data-act="like" data-bind="likeicon" aria-label="Like"></button>
+    <button class="icon" data-act="menu" aria-label="More"></button>
+  </div>
+  <div class="bar-right">
+    <button class="icon" data-act="mute" data-bind="volicon" aria-label="Mute"></button>
+    <input class="volume" type="range" min="0" max="1" step="0.02" value="1" aria-label="Volume">
+    <button class="chip" data-act="speed" data-bind="speedchip" hidden>1x</button>
+    <button class="icon" data-act="repeat" data-bind="repeaticon" aria-label="Repeat"></button>
+    <button class="icon" data-act="shuffle" aria-label="Shuffle Up Next"></button>
+    <button class="icon" data-act="panel" aria-label="Queue and lyrics"></button>
+  </div>
+</footer>
+
+<!-- Computer: queue and lyrics, on the right. -->
+<aside id="panel" class="desk-only" hidden>
+  <div class="panel-tabs">
+    <button class="chip on" data-act="panel-queue">Up Next</button>
+    <button class="chip" data-act="panel-lyrics">Lyrics</button>
+    <span class="grow"></span>
+    <button class="chip" data-act="autoplay" data-bind="autoplaychip">Autoplay</button>
+  </div>
+  <div id="panel-queue" data-bind="queue"></div>
+  <div id="panel-lyrics" class="lyrics" hidden></div>
+</aside>
+
+<!-- Pop-up menu ("..." on a song) and short messages. -->
+<div id="sheet" hidden><div id="sheet-box"></div></div>
+<div id="toast" hidden></div>
+
+<script src="/web/app.js"></script>
+</body>
+</html>

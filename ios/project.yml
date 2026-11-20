@@ -1,0 +1,74 @@
+# XcodeGen spec. Generate the Xcode project with:  cd ios && xcodegen
+# (PiTunes.xcodeproj is generated and gitignored; edit this file instead.)
+name: PiTunes
+options:
+  bundleIdPrefix: com.pitunes
+  deploymentTarget:
+    iOS: "17.0"
+settings:
+  base:
+    # Your Apple developer team ID (Xcode: Settings > Accounts). Or leave this and
+    # pick your team in Xcode under Signing & Capabilities.
+    DEVELOPMENT_TEAM: YOUR_TEAM_ID
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "5"
+targets:
+  PiTunes:
+    type: application
+    platform: iOS
+    sources: [PiTunes]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pitunes.app
+        TARGETED_DEVICE_FAMILY: "1"          # iPhone only
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # CarPlay needs an entitlement that Apple grants per account. Until
+        # it's granted, only simulator builds ask for it, so phone builds still
+        # sign. After approval, drop the [sdk=...] part.
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": PiTunes/CarPlay.entitlements
+    info:
+      path: PiTunes/Info.plist
+      properties:
+        CFBundleDisplayName: PiTunes
+        # Take the version and build number from the settings at the top.
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        # Keep playing with the screen locked / app in the background.
+        UIBackgroundModes: [audio]
+        # Sound search (identify a song playing nearby) listens for a few seconds.
+        NSMicrophoneUsageDescription: PiTunes listens for a few seconds to identify the song playing around you.
+        # Only standard HTTPS/TLS is used, so no export paperwork is needed.
+        ITSAppUsesNonExemptEncryption: false
+        # The server is plain HTTP over Tailscale (WireGuard already encrypts
+        # it), so allow non-HTTPS loads. Fine for a personal sideloaded app.
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UIApplicationSceneManifest:
+          # Two scenes: the phone window (SwiftUI makes it) and the car screen.
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            CPTemplateApplicationSceneSessionRoleApplication:
+              - UISceneConfigurationName: CarPlay
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).CarPlaySceneDelegate
+  PiTunesUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [PiTunesUITests]
+    dependencies:
+      - target: PiTunes
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pitunes.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  PiTunes:
+    build:
+      targets:
+        PiTunes: all
+        PiTunesUITests: [test]
+    test:
+      targets: [PiTunesUITests]
