@@ -71,8 +71,14 @@ jobs:
           sudo rm /etc/systemd/system/pitunes.service.d/test.conf
           sudo systemctl daemon-reload
           sudo systemctl restart pitunes.service
-          sleep 30
-          curl -sf http://127.0.0.1:8000/health | tee /dev/stderr | grep -q '"limit_mb":350'
+          # Back on the normal limit it must stay up: play a song's worth of
+          # work (the warm-up resolve), wait for two passes of the guard, and
+          # check that it never restarted.
+          before="$(systemctl show -p NRestarts --value pitunes.service)"
+          sleep 150
+          curl -sf http://127.0.0.1:8000/health
+          test "$(systemctl show -p NRestarts --value pitunes.service)" = "$before"
+          if journalctl -u pitunes --since "-140 sec" --no-pager | grep "restarting to free it"; then exit 1; fi
 
       - name: Logs, if anything failed
         if: failure()
