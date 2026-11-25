@@ -42,6 +42,12 @@ ALLOWED_HOSTS = sorted({_OWN_NAME, f"{_OWN_NAME}.local", ".ts.net",
                         *(h.strip().lower() for h in
                           os.environ.get("PITUNES_ALLOWED_HOSTS", "music,music.local").split(",") if h.strip())})
 
+# If the server and the Deno processes it starts together use more memory than
+# this, the server restarts itself (systemd starts it again within seconds).
+# Normal use is about 220 MB. Without this limit a runaway fills a Pi Zero's
+# 512 MB and the whole Pi stops responding. 0 = no limit.
+MEMORY_LIMIT_MB = int(os.environ.get("PITUNES_MEMORY_LIMIT_MB", "350"))
+
 # Keep one Deno process warm for YouTube's JS challenges (see jsworker.py).
 # Cuts a resolve on the Pi Zero 2 W from ~22 s to ~4 s for ~80 MB of RAM.
 JS_WORKER = os.environ.get("PITUNES_JS_WORKER", "1") == "1"

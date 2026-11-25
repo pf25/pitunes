@@ -1,9 +1,11 @@
 [Unit]
-Description=Weekly yt-dlp/Deno update for pitunes
+Description=Daily yt-dlp/Deno update for pitunes
 
 [Timer]
-# Monday 04:00, give or take 30 min. Persistent: runs at next boot if the Pi was off.
-OnCalendar=Mon *-*-* 04:00:00
+# Every day at 04:00, give or take 30 min. Daily because a YouTube change can
+# stop new songs from playing until yt-dlp's fix is installed.
+# Persistent: runs at next boot if the Pi was off.
+OnCalendar=*-*-* 04:00:00
 RandomizedDelaySec=30min
 Persistent=true
 

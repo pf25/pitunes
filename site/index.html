@@ -329,7 +329,7 @@ sudo tailscale up</code></pre>
 <h2 id="running">Keeping it running</h2>
 <p>The setup is meant to be left alone.</p>
 <ul>
-  <li><strong>It updates the part that breaks.</strong> YouTube changes often, so once a week the server updates the library it uses to fetch audio (yt-dlp). After updating it checks that it can still fetch a test song. If that fails, it goes back to the previous version on its own.</li>
+  <li><strong>It updates the part that breaks.</strong> YouTube changes often, so every night the server updates the library it uses to fetch audio (yt-dlp). After updating it checks that it can still fetch a test song. If that fails, it goes back to the previous version on its own.</li>
   <li><strong>It is gentle on the SD card.</strong> Logs are kept in memory instead of being written to the card, because constant small writes wear SD cards out.</li>
   <li><strong>It restarts itself.</strong> After a power cut the Pi boots and the server starts without you doing anything.</li>
   <li><strong>The operating system gets security updates automatically.</strong></li>
@@ -345,7 +345,7 @@ sudo tailscale up</code></pre>
 <details><summary>Can I use something other than a Raspberry Pi?</summary><p>The server is a small Python program and also runs on a Mac or any Linux machine. The install script and this guide are written for Raspberry Pi OS.</p></details>
 <details><summary>Does it work on Android, iPad, Windows?</summary><p>It is built to. The app is a web app, so it should run in any current browser: install Tailscale on the device, open your Pi's address and add it to the home screen. So far it has been used on iPhone (Safari) and in Chrome on a computer. If something is off on your device, please open an issue on GitHub.</p></details>
 <details><summary>Why is there no volume slider on iPhone?</summary><p>Apple does not let web pages change the volume on an iPhone. Use the side buttons. Other devices get a slider.</p></details>
-<details><summary>What happens when YouTube changes something and songs stop playing?</summary><p>That is what the weekly update is for. If playback breaks between updates, re-running the install command fetches the newest versions straight away. See <a href="support.html">Support</a>.</p></details>
+<details><summary>What happens when YouTube changes something and songs stop playing?</summary><p>That is what the nightly update is for. If playback breaks between updates, re-running the install command fetches the newest versions straight away. See <a href="support.html">Support</a>.</p></details>
 <details><summary>Where do I ask a question or report a bug?</summary><p>On GitHub, in the project's <a href="https://github.com/pf25/pitunes/issues">Issues</a>. That is the only support channel.</p></details>
 <details><summary>What data does the app collect?</summary><p>None. See the <a href="privacy.html">privacy policy</a>.</p></details>
 

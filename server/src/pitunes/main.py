@@ -17,8 +17,10 @@ import argparse
 import asyncio
 import ipaddress
 import logging
+import os
 import re
 import resource
+import signal
 import socket
 import sqlite3
 import sys
@@ -65,8 +67,11 @@ async def lifespan(app: FastAPI):
     if config.JS_WORKER:
         jsworker.install()
         warmup = asyncio.create_task(_keep_worker_warm(app.state.resolver))
+    guard = asyncio.create_task(_memory_guard()) if config.MEMORY_LIMIT_MB else None
     yield
     convert.cancel()
+    if guard:
+        guard.cancel()
     if warmup:
         warmup.cancel()
     jsworker.worker.stop()
@@ -86,6 +91,42 @@ async def _keep_worker_warm(resolver: Resolver) -> None:
         except Exception as e:  # noqa: BLE001 - warm-up is best effort
             log.warning("worker warm-up failed: %s", str(e)[:200])
         await asyncio.sleep(4 * 3600)
+
+
+def memory_in_use_mb() -> float | None:
+    """Memory held right now by the server and the Deno processes it started,
+    in MB, including what has been pushed out to swap. None where there is no
+    /proc to read (anything but Linux)."""
+    me = os.getpid()
+    total_kb = 0
+    try:
+        pids = [name for name in os.listdir("/proc") if name.isdigit()]
+    except OSError:
+        return None
+    for pid in pids:
+        try:
+            with open(f"/proc/{pid}/status") as f:
+                fields = dict(line.split(":", 1) for line in f if ":" in line)
+        except OSError:
+            continue  # that process ended while we were looking
+        if int(pid) == me or int(fields.get("PPid", "0")) == me:
+            total_kb += sum(int(fields[k].split()[0]) for k in ("VmRSS", "VmSwap") if k in fields)
+    return round(total_kb / 1024, 1)
+
+
+async def _memory_guard() -> None:
+    """Once a minute, check how much memory the server and its Deno processes
+    use. Over the limit, stop the server; systemd starts a fresh one within
+    seconds. A listener hears a short gap. The alternative is worse: a Pi Zero
+    that runs out of memory stops answering altogether until someone unplugs it."""
+    while True:
+        await asyncio.sleep(60)
+        used = await asyncio.to_thread(memory_in_use_mb)
+        if used is not None and used > config.MEMORY_LIMIT_MB:
+            log.warning("memory use is %.0f MB (limit %d MB): restarting to free it",
+                        used, config.MEMORY_LIMIT_MB)
+            os.kill(os.getpid(), signal.SIGTERM)  # a normal, clean shutdown
+            return
 
 
 app = FastAPI(title="pitunes", lifespan=lifespan)
@@ -167,6 +208,9 @@ def _memory() -> dict:
         mem["rss_mb"] = round(pages * resource.getpagesize() / 1024 / 1024, 1)
     except OSError:
         pass
+    in_use = memory_in_use_mb()
+    if in_use is not None:  # what the memory guard compares with the limit
+        mem["in_use_mb"], mem["limit_mb"] = in_use, config.MEMORY_LIMIT_MB
     return mem
 
 

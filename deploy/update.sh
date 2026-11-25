@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Weekly (pitunes-update.timer): update yt-dlp + its JS solver and Deno, since
+# Daily (pitunes-update.timer): update yt-dlp + its JS solver and Deno, since
 # YouTube changes often. Runs as the normal user.
 #
 # Safety: after updating, it resolves one known song. If that fails, the

@@ -50,8 +50,29 @@ jobs:
           curl -sf http://127.0.0.1:8000/likes
           systemctl is-enabled pitunes.service pitunes-update.timer
 
+      # The nightly updater rewrites uv.lock on the Pi. Updating must still work.
       - name: Run the installer again (the update path)
-        run: PITUNES_REPO="file://$GITHUB_WORKSPACE" bash install.sh
+        run: |
+          echo "# changed by the updater" >> ~/pitunes/server/uv.lock
+          PITUNES_REPO="file://$GITHUB_WORKSPACE" bash install.sh
+          git -C ~/pitunes status --short
+
+      # With an impossibly low limit, the server must notice within a minute,
+      # stop, and be started again by systemd.
+      - name: The memory guard restarts a server that uses too much
+        run: |
+          sudo mkdir -p /etc/systemd/system/pitunes.service.d
+          printf '[Service]\nEnvironment=PITUNES_MEMORY_LIMIT_MB=1\n' | sudo tee /etc/systemd/system/pitunes.service.d/test.conf >/dev/null
+          sudo systemctl daemon-reload
+          sudo systemctl restart pitunes.service
+          sleep 90
+          journalctl -u pitunes --since "-2 min" --no-pager | grep "restarting to free it"
+          test "$(systemctl show -p NRestarts --value pitunes.service)" -ge 1
+          sudo rm /etc/systemd/system/pitunes.service.d/test.conf
+          sudo systemctl daemon-reload
+          sudo systemctl restart pitunes.service
+          sleep 30
+          curl -sf http://127.0.0.1:8000/health | tee /dev/stderr | grep -q '"limit_mb":350'
 
       - name: Logs, if anything failed
         if: failure()

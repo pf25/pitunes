@@ -30,6 +30,10 @@ sudo apt-get install -y -q git curl unzip ffmpeg >/dev/null
 
 if [ -d "$ROOT/.git" ]; then
   echo "==> Updating PiTunes in $ROOT"
+  # The daily updater rewrites uv.lock when it installs a newer yt-dlp. Put the
+  # original back first, or git refuses to pull. (The newest yt-dlp is
+  # installed again a few steps further on.)
+  git -C "$ROOT" checkout --quiet -- server/uv.lock
   git -C "$ROOT" pull --ff-only --quiet
 elif [ -e "$ROOT" ]; then
   die "$ROOT already exists but wasn't installed by this script. Move it away (keep $ROOT/server/data if you want your library) and run this again."

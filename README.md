@@ -85,7 +85,7 @@ address of your player. It asks for your Pi password once (sudo).
 What it sets up:
 
 - `pitunes.service`: starts on boot, listens **only** on the Pi's Tailscale address, restarts if it crashes
-- `pitunes-update.timer`: every week, updates yt-dlp and Deno (YouTube changes often), and rolls back if the new version can't play a test song
+- `pitunes-update.timer`: every night, updates yt-dlp and Deno (YouTube changes often), and rolls back if the new version can't play a test song
 - logs kept in RAM only, so logging never wears out the SD card
 - automatic OS security updates; password SSH login is turned off once you have an SSH key installed
 
@@ -126,7 +126,7 @@ systemctl list-timers pitunes-update.timer
 saves a consistent copy from any computer on your tailnet.
 
 **What the installer hardens:** the service runs sandboxed (no access to SSH
-keys, read-only system folders), and the weekly update runs as your user, not root.
+keys, read-only system folders), and the nightly update runs as your user, not root.
 
 ### If you flashed the desktop image by mistake
 

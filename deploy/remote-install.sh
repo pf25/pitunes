@@ -79,7 +79,7 @@ put /etc/apt/apt.conf.d/20auto-upgrades 644 < <(printf 'APT::Periodic::Update-Pa
 if [ "$CHANGED" = 1 ] || ! systemctl is-enabled -q pitunes.service || ! systemctl is-enabled -q pitunes-update.timer; then
   sudo systemctl daemon-reload
   sudo systemctl enable --quiet pitunes.service pitunes-update.timer
-  sudo systemctl start pitunes-update.timer
+  sudo systemctl restart pitunes-update.timer   # restart: picks up a changed schedule
   sudo systemctl restart systemd-journald
   if sudo sshd -t 2>/dev/null; then sudo systemctl reload ssh 2>/dev/null || true; else echo "!! sshd config invalid; not reloaded"; fi
 fi

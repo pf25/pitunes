@@ -377,3 +377,40 @@ def test_pinned_songs_lead_the_speed_dial(client):
     assert [s["id"] for s in client.get("/pins").json()] == [pinned["id"]]
     client.delete(f"/pins/{pinned['id']}")
     assert pinned["id"] not in [s["id"] for s in client.get("/speed-dial").json()]
+
+
+def test_memory_guard_restarts_the_server_over_the_limit(monkeypatch):
+    """Over the limit the guard sends itself a normal shutdown signal (systemd
+    then starts a fresh server); under the limit it leaves things alone."""
+    import signal
+
+    async def run(in_use_mb: float) -> list:
+        sent, sleeps = [], []
+
+        async def one_tick(_seconds):          # first sleep returns, second ends the loop
+            sleeps.append(1)
+            if len(sleeps) > 1:
+                raise asyncio.CancelledError
+
+        monkeypatch.setattr(main.asyncio, "sleep", one_tick)
+        monkeypatch.setattr(main, "memory_in_use_mb", lambda: in_use_mb)
+        monkeypatch.setattr(main.os, "kill", lambda pid, sig: sent.append((pid, sig)))
+        try:
+            await main._memory_guard()
+        except asyncio.CancelledError:
+            pass
+        return sent
+
+    limit = main.config.MEMORY_LIMIT_MB
+    assert asyncio.run(run(limit + 50)) == [(os.getpid(), signal.SIGTERM)]
+    assert asyncio.run(run(limit - 50)) == []
+
+
+def test_memory_in_use_counts_this_process():
+    """On Linux the number is real and at least a few MB; elsewhere it is None."""
+    used = main.memory_in_use_mb()
+    if os.path.isdir("/proc/self"):
+        assert used and used > 5
+        assert main._memory()["limit_mb"] == main.config.MEMORY_LIMIT_MB
+    else:
+        assert used is None
